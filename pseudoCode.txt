@@ -1,0 +1,48 @@
+
+# Create board
+Function createBoard(width, height)
+    set gridwidth to width {const gridWidth = width } 
+    set gridheight to height  
+    Initialize minefield as 2D array of gridHeight * gridWidth
+
+# Place mine
+Function placeMines(numberOfMines)
+    Initialize mineLocations as empty array
+    while mineLocation < numberOfMines
+        set x to random integer between 0 and gridWidth -1;
+        set y to random integer between 0 and gridWidth -1;
+
+        If 2d-array[x][y] is TRUE
+            set 2d-array[x][y] to TRUE
+            append (x,y) to 2d-array
+
+#adjacentMines
+Function calculateAdjacentMines()
+    For each cell in 2d-array
+    set adjacentMines = 0;
+
+    for each adjacentCell in getAdjacentCells(cell)   // getAdjacentCells is a function that retrives adjacent cell element
+        if adjacentCell.isMine is TRUE  
+            increment adjacentMines
+    set cell.adjacentMines to adjacentMines
+
+#getAdjacentCell
+Function getAdjacentCells(cell)
+    Initialize adjacentCells as empty array
+    FOR dx FROM -1 TO 1
+        FOR dy FROM -1 TO 1
+            Set newX TO cell.x + dx
+            Set newY TO cell.y + dy
+
+            IF newX, newY within of range minefield
+                Appned minefield[newX][newY] TO adjacentCells
+
+    Retrun adjacentCell
+
+    
+
+
+
+
+
+    
