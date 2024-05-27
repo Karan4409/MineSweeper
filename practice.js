@@ -124,6 +124,9 @@ function revealAllMines() {
     }
 }
 
+
+// Email updated
+
 createBoard(10, 10);
 placeMines(5);
 renderBoard(minefield);
