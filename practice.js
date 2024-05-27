@@ -3,6 +3,7 @@ class Cell {
         this.x = x;
         this.y = y;
         this.isMine = false;
+        this.isRevealed = false;
     }
 }
 
@@ -56,7 +57,6 @@ function placeMines(numberOfMines) {
     return minesPlaced;
 }
 
-
 function getAdjacentMines(cell, minefield) {
     const adjacentCells = getAdjacentCells(cell, minefield);
     let mineCount = 0;
@@ -68,15 +68,62 @@ function getAdjacentMines(cell, minefield) {
     return mineCount;
 }
 
-createBoard(3, 3);
-placeMines(7);
+function renderBoard(minefield) {
+    const minefieldElement = document.getElementById('minefield');
+    minefieldElement.innerHTML = '';
+    for (let x = 0; x < minefield.length; x++) {
+        for (let y = 0; y < minefield[x].length; y++) {
+            const cell = minefield[x][y];
+            const cellElement = document.createElement('div');
+            cellElement.classList.add('cell');
+            cellElement.dataset.x = x;
+            cellElement.dataset.y = y;
+            
+            cellElement.addEventListener('click', () => revealCell(cell));
+            minefieldElement.appendChild(cellElement);
+        }
+    }
+}
 
-const exampleCell = minefield[1][1];
+function revealCell(cell) {
+    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
+    if (cell.isRevealed) return;
 
-const adjacentmines = getAdjacentMines(exampleCell, minefield);
-// console.log(adjacentmines);
+    cell.isRevealed = true;
 
-const adjacentCells = getAdjacentCells(exampleCell, minefield);
-// console.log(adjacentCells);
+    if (cell.isMine) {
+        cellElement.classList.add('mine');
+        alert("Game Over!");
+        revealAllMines();
+    } else {
+        const adjacentMines = getAdjacentMines(cell, minefield);
+        cellElement.classList.add('revealed');
+        if (adjacentMines > 0) {
+            cellElement.textContent = adjacentMines;
+        } else {
+            cellElement.textContent = '';
+            const adjacentCells = getAdjacentCells(cell, minefield);
+            for (const adjacentCell of adjacentCells) {
+                if (!adjacentCell.isRevealed) {
+                    revealCell(adjacentCell);
+                }
+            }
+        }
+    }
+}
 
-console.log(minefield)
+function revealAllMines() {
+    for (let x = 0; x < minefield.length; x++) {
+        for (let y = 0; y < minefield[x].length; y++) {
+            const cell = minefield[x][y];
+            if (cell.isMine) {
+                const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
+                cellElement.classList.add('mine');
+            }
+        }
+    }
+}
+
+createBoard(10, 10);
+placeMines(5);
+renderBoard(minefield);
