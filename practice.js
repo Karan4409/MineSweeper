@@ -4,6 +4,7 @@ class Cell {
         this.y = y;
         this.isMine = false;
         this.isRevealed = false;
+        this.isFlagged = false;
     }
 }
 
@@ -80,15 +81,19 @@ function renderBoard(minefield) {
             cellElement.dataset.y = y;
             
             cellElement.addEventListener('click', () => revealCell(cell));
+            cellElement.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                toggleFlag(cell);
+            });
             minefieldElement.appendChild(cellElement);
         }
     }
 }
 
 function revealCell(cell) {
-    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
-    if (cell.isRevealed) return;
+    if (cell.isRevealed || cell.isFlagged) return;
 
+    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
     cell.isRevealed = true;
 
     if (cell.isMine) {
@@ -100,7 +105,7 @@ function revealCell(cell) {
         cellElement.classList.add('revealed');
         if (adjacentMines > 0) {
             cellElement.textContent = adjacentMines;
-        } else {
+        } else { 
             cellElement.textContent = '';
             const adjacentCells = getAdjacentCells(cell, minefield);
             for (const adjacentCell of adjacentCells) {
@@ -109,6 +114,21 @@ function revealCell(cell) {
                 }
             }
         }
+    }
+}
+
+function toggleFlag(cell) {
+    if (cell.isRevealed) return;
+
+    cell.isFlagged = !cell.isFlagged;
+    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
+
+    if (cell.isFlagged) {
+        cellElement.classList.add('flagged');
+        cellElement.textContent = '🚩';
+    } else {
+        cellElement.classList.remove('flagged');
+        cellElement.textContent = '';
     }
 }
 
@@ -123,9 +143,6 @@ function revealAllMines() {
         }
     }
 }
-
-
-// Email updated
 
 createBoard(10, 10);
 placeMines(5);

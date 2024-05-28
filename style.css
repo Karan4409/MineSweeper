@@ -32,3 +32,10 @@ body {
 .cell.revealed {
     background-color: #ffffff;
 }
+
+.cell.flagged {
+    background-color: yellow; 
+    color: red;
+}
+
+
