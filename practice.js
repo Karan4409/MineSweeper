@@ -9,6 +9,7 @@ class Cell {
 }
 
 const minefield = [];
+let flagCount = 0;
 
 function createBoard(width, height) {
     const gridWidth = width;
@@ -91,9 +92,9 @@ function renderBoard(minefield) {
 }
 
 function revealCell(cell) {
-    if (cell.isRevealed || cell.isFlagged) return;
-
     const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
+    if (cell.isRevealed) return;
+
     cell.isRevealed = true;
 
     if (cell.isMine) {
@@ -105,7 +106,7 @@ function revealCell(cell) {
         cellElement.classList.add('revealed');
         if (adjacentMines > 0) {
             cellElement.textContent = adjacentMines;
-        } else { 
+        } else {
             cellElement.textContent = '';
             const adjacentCells = getAdjacentCells(cell, minefield);
             for (const adjacentCell of adjacentCells) {
@@ -114,21 +115,6 @@ function revealCell(cell) {
                 }
             }
         }
-    }
-}
-
-function toggleFlag(cell) {
-    if (cell.isRevealed) return;
-
-    cell.isFlagged = !cell.isFlagged;
-    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
-
-    if (cell.isFlagged) {
-        cellElement.classList.add('flagged');
-        cellElement.textContent = '🚩';
-    } else {
-        cellElement.classList.remove('flagged');
-        cellElement.textContent = '';
     }
 }
 
@@ -144,6 +130,30 @@ function revealAllMines() {
     }
 }
 
+function toggleFlag(cell) {
+    if (cell.isRevealed) return;
+
+    cell.isFlagged = !cell.isFlagged;
+    const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
+
+    if (cell.isFlagged) {
+        cellElement.classList.add('flagged');
+        cellElement.textContent = '🚩';
+        flagCount++;
+    } else {
+        cellElement.classList.remove('flagged');
+        cellElement.textContent = '';
+        flagCount--;
+    }
+    updateFlagCounter();
+}
+
+function updateFlagCounter() {
+    const flagCounterElement = document.getElementById('flag-counter');
+    flagCounterElement.textContent = `Flags: ${flagCount}`;
+}
+
 createBoard(10, 10);
 placeMines(5);
 renderBoard(minefield);
+updateFlagCounter();
