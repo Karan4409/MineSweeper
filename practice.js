@@ -10,6 +10,8 @@ class Cell {
 
 const minefield = [];
 let flagCount = 0;
+let timerInterval;
+let startTime;
 
 function createBoard(width, height) {
     const gridWidth = width;
@@ -93,7 +95,7 @@ function renderBoard(minefield) {
 
 function revealCell(cell) {
     const cellElement = document.querySelector(`.cell[data-x='${cell.x}'][data-y='${cell.y}']`);
-    if (cell.isRevealed) return;
+    if (cell.isRevealed || cell.isFlagged) return;
 
     cell.isRevealed = true;
 
@@ -101,6 +103,7 @@ function revealCell(cell) {
         cellElement.classList.add('mine');
         alert("Game Over!");
         revealAllMines();
+        clearInterval(timerInterval);
     } else {
         const adjacentMines = getAdjacentMines(cell, minefield);
         cellElement.classList.add('revealed');
@@ -115,6 +118,7 @@ function revealCell(cell) {
                 }
             }
         }
+        checkWinCondition();
     }
 }
 
@@ -153,7 +157,37 @@ function updateFlagCounter() {
     flagCounterElement.textContent = `Flags: ${flagCount}`;
 }
 
+function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const timerElement = document.getElementById('timer');
+    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    timerElement.textContent = `Time: ${elapsedSeconds}s`;
+}
+
+function checkWinCondition() {
+    let revealedCells = 0;
+    let totalMines = 0;
+
+    for (let x = 0; x < minefield.length; x++) {
+        for (let y = 0; y < minefield[x].length; y++) {
+            const cell = minefield[x][y];
+            if (cell.isRevealed) revealedCells++;
+            if (cell.isMine) totalMines++;
+        }
+    }
+
+    if (revealedCells + totalMines - 1 === minefield.length * minefield[0].length) {
+        alert("Congratulations! You've won!");
+        clearInterval(timerInterval);
+    }
+}
+
 createBoard(10, 10);
-placeMines(5);
+placeMines(10);
 renderBoard(minefield);
 updateFlagCounter();
+startTimer();
